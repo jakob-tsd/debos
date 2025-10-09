@@ -2,11 +2,11 @@ package debos
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
 	"os"
 	"os/exec"
 	"path"
@@ -234,7 +234,9 @@ func (cmd Command) Run(label string, cmdline ...string) error {
 		options = append(options, "--resolv-conf=off")
 		options = append(options, "--timezone=off")
 		options = append(options, "--register=no")
-		options = append(options, fmt.Sprintf("--machine=debos-%d", rand.Int63()))
+		machineID := make([]byte, 16)
+		_, _ = rand.Read(machineID) // discard return values, this call never fails
+		options = append(options, fmt.Sprintf("--machine=debos-%x", machineID))
 		options = append(options, "--keep-unit")
 		options = append(options, "--console=pipe")
 		for _, e := range cmd.extraEnv {
